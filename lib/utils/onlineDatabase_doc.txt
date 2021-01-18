@@ -1,0 +1,77 @@
+***
+when an admin registers a project named <project_name>:
+    1.  ☑ A value of 'project_id_counter' (col: '_app_data', doc: 'app_config') is read from firestore.
+        It is assigned to the project as it's ID (<project_id>).
+        Then 'project_id_counter' is incremented by 1, and sent back to firestore.
+    2.  ☒ (this step is not necessary, because as participants create first idea this collection will be created)
+            a new empty collection (project_<project_id>_ideas) is created.
+    3.  ☑ app gets _app_data/app_config/invitation_code_counter,
+        ☒ generates as many new unique invitation codes as the participants in the project,
+        ☑ adds them to _app_data/invitation_codes as a key-value pair:
+            key is invitation code
+            value is <project_id>
+    4.  ☑ adds a new doc 'project_<project_id>' to _projects_data which is structured as follows:
+            {
+            int project_id,
+            String title,
+            String description,
+            String author, //Firebase user ID
+            Timestamp created_on,
+            Timestamp starts,
+            Timestamp ends,
+            String status, //ongoing, not_started_yet
+            int idea_id_counter,
+            Map<Map> participants = [
+                Map <invitation_code> = {
+                    int invitation_code,
+                    String name,
+                    String email,
+                    List<Datetime> app_launches,
+                    String status,  //consent_withdrawn
+                    Datetime invitation_code_activated,
+                    },
+                Map <invitation_code> {.....},
+                Map <invitation_code> {.....},
+                ],
+            }
+
+
+***
+when a participant enters an invitation code:
+    1.  ☑app gets _app_data/invitation_codes and checks if the entered code exists:
+            ☑if yes: gets project ID and saves it (<project_id>) and the code (<invitation_code>) in sharedPreferences;
+            ☒if no: shows error
+    2.  ☒if project setting allow entering names, app asks for it and saves to:
+            participants[invitation_code][name] (at _projects_data/project_<project_id>/)
+
+***
+when a participant creates a new idea:
+    1. ☑app generates new idea ID (depending on value in idea_id_counter)
+    2. ☑adds a new doc 'idea_<idea_id>' to _projects_data/project_<project_id> which is structured as follows:
+                   Map idea_<idea_id> = {
+                       int id,
+                       String title,
+                       String url, //ex. link of a product on Amazon
+                       String image_url,
+                       String author_invitation_code,
+                       String author_name,
+                       Timestamp created_on,
+                       List comments = [
+                           Map <comment_id> = {
+                               String author_invitation_code, //invitation_code
+                               String comment,
+                               Datetime commented_at,
+                               },
+                           Map <comment_id> {.....},
+                           Map <comment_id> {.....},
+                       ],
+                       List ratings = [
+                           Map <rating_id> = {
+                               String author, //invitation_code
+                               double rating,
+                               Datetime rated_at,
+                               },
+                           Map <rating_id> {.....},
+                           Map <rating_id> {.....},
+                       ],
+                   }

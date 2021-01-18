@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "437719136031",
+    "firebase_url": "https://fu-ideation.firebaseio.com",
+    "project_id": "fu-ideation",
+    "storage_bucket": "fu-ideation.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:437719136031:android:126f0dbbc64ba57683a22a",
+        "android_client_info": {
+          "package_name": "de.fuberlin.fu_ideation"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "437719136031-29e7akfon9th4uh43qf8tjq2cbe8fdhn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.fuberlin.fu_ideation",
+            "certificate_hash": "5984939343f7409452e8ffb731eb9303f2404b51"
+          }
+        },
+        {
+          "client_id": "437719136031-ifqtsll26g7856k7aoolamv4m2nkmirn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUKPaGBVKxiqG45LDlqJS_I6ffcxnf8p4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "437719136031-ifqtsll26g7856k7aoolamv4m2nkmirn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
