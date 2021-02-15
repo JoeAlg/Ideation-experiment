@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fu_ideation/utils/globals.dart';
+import 'package:fu_ideation/utils/globalsManager.dart';
 import 'package:fu_ideation/utils/routes.dart';
 import 'APIs/firestore.dart';
 import 'APIs/sharedPreferences.dart';
@@ -8,6 +10,8 @@ Future<void> main() async {
   await initFirebase();
   initFirestore();
   await initSharedPreferences();
+  await initProjectInfo();
+  print('projectInfoöö: ' + projectInfo.toString());
   initInitialRoute();
   runApp(MyApp());
 }

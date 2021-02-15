@@ -25,9 +25,7 @@ class UserInformation2 extends StatelessWidget {
 class UserInformation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
     Stream collectionStream = FirebaseFirestore.instance.collection('users').snapshots();
-    Stream documentStream = FirebaseFirestore.instance.collection('users').doc('ABC123').snapshots();
 
     return StreamBuilder<QuerySnapshot>(
       stream: collectionStream,

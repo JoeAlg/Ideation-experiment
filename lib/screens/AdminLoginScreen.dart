@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'login as experimenter',
+                'login as admin',
               style: TextStyle(fontSize: 18),),
             ),
             Padding(

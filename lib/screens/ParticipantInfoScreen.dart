@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fu_ideation/APIs/sharedPreferences.dart';
 import 'package:fu_ideation/utils/ScreenArguments.dart';
 
 class ParticipantInfoScreen extends StatefulWidget {

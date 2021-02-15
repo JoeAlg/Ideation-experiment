@@ -53,14 +53,19 @@ Future<Map> generateNewInvitationCodesOverFirestore(int projectId, int numInvita
 
 Future<int> getProjectIdByInvitationCode(String invitationCode) async {
   var projectId = await firestoreGetFieldValue('_app_data', 'invitation_codes', invitationCode);
-  print('z1');
   if (projectId == null) return null;
-  print('z2');
   if (projectId is int) {
-    print('z3');
     return projectId;
   } else {
-    print('z4');
+    return null;
+  }
+}
+
+Future<Map> getProjectInfoById(String projectId) async {
+  try {
+    Map projectDoc = await firestoreGetDoc('_projects_data', 'project_' + projectId);
+    return projectDoc;
+  } catch(e){
     return null;
   }
 }

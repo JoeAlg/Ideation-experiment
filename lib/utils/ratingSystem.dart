@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:fu_ideation/APIs/firestore.dart';
 /*
 
 Future<double> getAverageRating(int projectId, int ideaId) async {
@@ -32,11 +29,9 @@ double getAverageRating2(List ratingsMaps) {
   });
 
 
-  if (ratings == null || ratings.isEmpty) return null;
-  log(ratings.toString());
+  if (ratings == null || ratings.isEmpty || ratings.contains(null)) return null;
   double _sum = 1.0 * ratings.reduce((a, b) => a + b);
   double _avg = _sum / ratings.length;
   if (_avg > 5.0) return 5.0;
-  log((_sum / ratings.length).toString());
   return _sum / ratings.length;
 }

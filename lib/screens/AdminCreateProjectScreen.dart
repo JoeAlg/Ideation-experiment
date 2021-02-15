@@ -1,9 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:fu_ideation/APIs/firestore.dart';
+import 'package:fu_ideation/components/ContentVisibilityDropdown.dart';
 import 'package:fu_ideation/utils/dateTimeFormatter.dart';
-import 'package:fu_ideation/utils/linearCongruentialGenerator.dart';
+import 'package:fu_ideation/utils/globals.dart';
 import 'package:fu_ideation/utils/onlineDatabase.dart';
 
 class CreateProjectScreen extends StatefulWidget {
@@ -19,8 +18,16 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
   TextEditingController titleController = new TextEditingController();
   TextEditingController descriptionController = new TextEditingController();
   TextEditingController numParticipantsController = new TextEditingController();
+  TextEditingController participantNamesController = new TextEditingController();
+  TextEditingController phaseDescriptionController = new TextEditingController();
   DateTime selectedStartDateTime = DateTime.now();
   DateTime selectedEndDateTime = DateTime.now();
+  DateTime selectedPhaseStartDateTime = DateTime.now();
+  DateTime selectedPhaseEndDateTime = DateTime.now();
+  List<Map> phasesMaps = [];
+  String _phasesDropDownSelection;
+  bool checkedValue = false;
+  bool customNameSelectionCheckboxValue = false;
 
   Future<void> onSaveProjectButtonClicked() async {
     FocusScope.of(context).unfocus();
@@ -41,7 +48,6 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
       return;
     }
 
-
     int projectId = await generateNewProjectIdOverFirestore();
     Map invitationCodes = await generateNewInvitationCodesOverFirestore(projectId, numParticipants);
     if (invitationCodes == null) {
@@ -52,14 +58,15 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
     Map participants = {};
     invitationCodes.forEach((k, v) {
       participants[k] = {
-        'invitation_code' : k,
-        'name' : 'unknown',
-        'email' : 'unknown',
-        'app_launches' : [],
-        'status' : 'code_not_activated',
-        'invitation_code_activated' : 'null',
+        'invitation_code': k,
+        'name': 'unknown',
+        'email': 'unknown',
+        'app_launches': [],
+        'status': 'code_not_activated',
+        'invitation_code_activated': 'null',
       };
     });
+
 
     var projectMap = {
       'project_id': projectId,
@@ -70,8 +77,9 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
       'starts': selectedStartDateTime,
       'ends': selectedEndDateTime,
       'status': 'active',
-      'idea_id_counter' : 0,
-      'participants' : participants,
+      'idea_id_counter': 0,
+      'participants': participants,
+      'phases' : phasesMaps,
     };
 
     bool _success = await firestoreWrite('_projects_data', 'project_' + projectId.toString(), projectMap);
@@ -95,6 +103,179 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
         });
       }
     }
+    print('selectedStartDateTime: ' + selectedStartDateTime.toString());
+  }
+
+  Future<void> _selectPhaseDate(BuildContext context, _dateTime) async {
+    FocusScope.of(context).unfocus();
+    final DateTime pickedDate = await showDatePicker(context: context, initialDate: _dateTime, firstDate: DateTime(2020, 1), lastDate: DateTime(2101));
+    if (pickedDate != null) {
+      final TimeOfDay pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay(hour: _dateTime.hour, minute: _dateTime.minute));
+      if (pickedTime != null) {
+        setState(() {
+          selectedPhaseStartDateTime = new DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedTime.hour, pickedTime.minute);
+        });
+      }
+    }
+  }
+
+  void _savePhase() {
+    Navigator.of(context, rootNavigator: true).pop();
+    print('lastPhaseId1: ' + lastPhaseId.toString());
+    lastPhaseId += 1;
+    print('lastPhaseId2: ' + lastPhaseId.toString());
+    Map _phaseMap = {
+      'phase_id': lastPhaseId,
+      'start_date_time': selectedPhaseStartDateTime,
+      'end_date_time': selectedPhaseEndDateTime,
+      'content_visibility': selectedPhasesDropDownValue,
+      'phase_description': phaseDescriptionController.text,
+    };
+    phasesMaps.add(_phaseMap);
+    setState(() {});
+  }
+
+  void _addPhase() {
+    selectedPhasesDropDownValue = 'visible';
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          print('_phasesDropDownSelection: ' + _phasesDropDownSelection.toString());
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)), //this right here
+            child: Container(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                        child: ListView(
+                      children: [
+                        SizedBox(height: 20),
+                        Text('create new phase', style: TextStyle(fontSize: 20), textAlign: TextAlign.center),
+                        SizedBox(height: 20),
+                        Text(_phasesDropDownSelection ?? 'co-participants content visibility:'),
+                        Row(
+                          //mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ContentVisibilityDropdown(),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        //start
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('starts:'),
+                            FlatButton(
+                              onPressed: () => _selectPhaseDate(context, selectedPhaseStartDateTime),
+                              child: Text(
+                                dateTimeToString(selectedPhaseStartDateTime),
+                                style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        //end
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('ends:'),
+                            FlatButton(
+                              onPressed: () => _selectPhaseDate(context, selectedPhaseEndDateTime),
+                              child: Text(
+                                dateTimeToString(selectedPhaseEndDateTime),
+                                style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        TextField(
+                          controller: phaseDescriptionController,
+                          keyboardType: TextInputType.emailAddress,
+                          minLines: 2,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                              hintText: 'description...',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              )),
+                        ),
+                        SizedBox(height: 20),
+                        RaisedButton(
+                          onPressed: _savePhase,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'save',
+                              style: TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ),
+                          color: Colors.blue,
+                        ),
+                        SizedBox(height: 20),
+                      ],
+                    ))
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  Widget _phases() {
+    if (1 == 2) {
+      return Column(
+        children: [
+          Card(
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text('8'),
+                    Text('87'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+    if (phasesMaps == null || phasesMaps.isEmpty) {
+      return Container();
+    }
+    List<Widget> phasesElements = [];
+    for (final e in phasesMaps) {
+      phasesElements.add(Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Phase ' + e['phase_id'].toString(), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              SizedBox(height: 8),
+              Text('content visibility: ' + e['content_visibility']),
+              Text('starts: ' + dateTimeToString(e['start_date_time'])),
+              Text('ends: ' + dateTimeToString(e['end_date_time'])),
+            ],
+          ),
+        ),
+      ));
+    }
+    Column phasesColumn = new Column(children: phasesElements);
+    return phasesColumn;
   }
 
   @override
@@ -129,7 +310,7 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0, bottom: 8.0),
                 child: Text(
-                  'description:',
+                  'welcome text:',
                 ),
               ),
               TextField(
@@ -138,7 +319,7 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
                 minLines: 2,
                 maxLines: 3,
                 decoration: InputDecoration(
-                    hintText: 'description...',
+                    hintText: 'welcome to this project...',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10.0)),
                     )),
@@ -161,41 +342,82 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
                     )),
               ),
 
-              //start
+              //number of participants
               Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0, bottom: 0.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('starts:'),
-                    FlatButton(
-                      onPressed: () => _selectDate(context, selectedStartDateTime),
-                      child: Text(
-                        dateTimeToString(selectedStartDateTime),
-                        style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
-                      ),
-                    ),
-                  ],
+                padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0, bottom: 8.0),
+                child: Text(
+                  'participant names (one per line):',
                 ),
+              ),
+              TextField(
+                controller: participantNamesController,
+                minLines: 5,
+                maxLines: 6,
+                decoration: InputDecoration(
+                    hintText: 'Alice\nBob',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    )),
+              ),
+
+              SizedBox(height: 18),
+              //start
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('starts:'),
+                  FlatButton(
+                    onPressed: () => _selectDate(context, selectedStartDateTime),
+                    child: Text(
+                      '!: ' + dateTimeToString(selectedStartDateTime),
+                      style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
+                    ),
+                  ),
+                ],
               ),
 
               //end
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 0.0, bottom: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('ends:'),
-                    FlatButton(
-                      onPressed: () => _selectDate(context, selectedEndDateTime),
-                      child: Text(
-                        dateTimeToString(selectedEndDateTime),
-                        style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('ends:'),
+                  FlatButton(
+                    onPressed: () => _selectDate(context, selectedEndDateTime),
+                    child: Text(
+                      '*: ' + dateTimeToString(selectedEndDateTime),
+                      style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+
+              CheckboxListTile(
+                title: Text("let participants edit their names"),
+                value: customNameSelectionCheckboxValue ?? false,
+                onChanged: (newValue) {
+                  print('newValue: ' + newValue.toString());
+                  setState(() {
+                    customNameSelectionCheckboxValue = newValue;
+                  });
+                },
+                controlAffinity: ListTileControlAffinity.leading, //  <-- leading Checkbox
+              ),
+
+              _phases(),
+
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RaisedButton(
+                    child: Text('add phase'),
+                    onPressed: _addPhase,
+                    //color: Colors.blue,
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 18),
 
               RaisedButton(
                 child: progressIndicatorVisible
@@ -203,7 +425,9 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
                     : Text('save', style: TextStyle(color: Colors.white)),
                 onPressed: onSaveProjectButtonClicked,
                 color: Colors.blue,
-              )
+              ),
+
+              SizedBox(height: 20),
             ],
           ),
         ),

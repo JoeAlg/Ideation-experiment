@@ -20,19 +20,25 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
     //check validity over Firebase:
     int projectId = await getProjectIdByInvitationCode(_code);
 
-    if (projectId == null){
+    if (projectId == null) {
       print('projectId is null');
       return;
     }
-    print('projectId: ' + projectId.toString());
+
+    projectInfo = await getProjectInfoById(projectId.toString());
+    if (projectInfo == null) {
+      print('projectInfo is null');
+      return;
+    }
+    print('projectInfo1: ' + projectInfo.toString());
 
     userInfo = {
-      'app_launches' : null,
-      'email' : null,
-      'invitation_code' : null,
-      'invitation_code_activated' : null,
-      'name' : null,
-      'status' : null,
+      'app_launches': null,
+      'email': null,
+      'invitation_code': null,
+      'invitation_code_activated': null,
+      'name': null,
+      'status': null,
     };
 
     sharedPreferencesSetInt('project_id', projectId);
@@ -71,7 +77,10 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: FlatButton(
-                    child: Text('login as experimenter', style: TextStyle(color: Colors.blue),),
+                    child: Text(
+                      'are you an admin?',
+                      style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                    ),
                     color: Colors.transparent,
                     onPressed: navigateToLoginScreen,
                   ),
@@ -82,7 +91,11 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
               child: ListView(
                 //mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.lightbulb_outline, size: 150, color: Colors.blue,),
+                  Icon(
+                    Icons.lightbulb_outline,
+                    size: 150,
+                    color: Colors.blue,
+                  ),
                   SizedBox(height: 40),
                   Center(
                     child: Text(
@@ -96,15 +109,20 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
                       controller: _invitationCodeTextFieldController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        hintText: 'invitation code...',
+                          hintText: 'invitation code...',
                           border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      )),
+                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          )),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: RaisedButton(onPressed: _next, child: Text('next'), color: Colors.blue, textColor: Colors.white,),
+                    child: RaisedButton(
+                      onPressed: _next,
+                      child: Text('next'),
+                      color: Colors.blue,
+                      textColor: Colors.white,
+                    ),
                   )
                 ],
               ),

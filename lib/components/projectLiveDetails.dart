@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:fu_ideation/utils/ScreenArguments.dart';
 
 class ProjectsLiveDetails extends StatelessWidget {
   final int projectId;
@@ -25,7 +24,6 @@ class ProjectsLiveDetails extends StatelessWidget {
                 child: Text('error loading data'),
               );
             }
-            List documentList = documentMap.entries.map((entry) => entry.value).toList();
 
             return Column(
               children: [

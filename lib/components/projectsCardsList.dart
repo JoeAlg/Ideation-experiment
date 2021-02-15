@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fu_ideation/utils/ScreenArguments.dart';
+import 'package:fu_ideation/utils/globals.dart';
 
 class ProjectsCardsList extends StatelessWidget {
   @override
@@ -24,20 +25,21 @@ class ProjectsCardsList extends StatelessWidget {
               title: Card(
                 child: new FlatButton(
                   //color: Colors.blue,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        new Text(document.data()['title']),
-                        new Text(document.data()['status']),
-                      ],
-                    ),
-                  onPressed: (){
-                  Navigator.pushNamed(
-                    context,
-                    '/adminProjectOverviewScreen',
-                    arguments: ProjectOverviewScreenArguments(document.data()['project_id']),
-                  );
-                }, ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      new Text(document.data()['title']),
+                      new Text(document.data()['status']),
+                    ],
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/adminProjectOverviewScreen',
+                      arguments: ProjectOverviewScreenArguments(document.data()['project_id']),
+                    );
+                  },
+                ),
               ),
             );
           }).toList(),

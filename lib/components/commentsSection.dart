@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:fu_ideation/utils/ScreenArguments.dart';
+
 ScrollController commentListViewController = new ScrollController();
 class CommentSection extends StatelessWidget {
   @override
@@ -17,7 +17,6 @@ class CommentSection extends StatelessWidget {
             if (documentMap == null){
               return Center(child: Text('no comments'),);
             }
-            List documentList = documentMap.entries.map((entry) => entry.value).toList();
 
             return ListView.builder(
               controller: commentListViewController,

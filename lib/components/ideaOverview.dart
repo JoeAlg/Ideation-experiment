@@ -26,7 +26,6 @@ class IdeaOverview extends StatelessWidget {
                 child: Text('error loading data'),
               );
             }
-            List documentList = documentMap.entries.map((entry) => entry.value).toList();
 
             return Column(
               children: [

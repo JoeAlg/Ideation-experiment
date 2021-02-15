@@ -32,6 +32,7 @@ class _CreateIdeaScreenState extends State<CreateIdeaScreen> {
     String authorInvitationCode = sharedPreferencesGetValue('invitation_code');
     DateTime _timestamp = new DateTime.now();
 
+    /*
     String ideaDescriptionText = _ideaDescriptionController.text;
     Map firstComment = {
       'comment': ideaDescriptionText,
@@ -40,15 +41,17 @@ class _CreateIdeaScreenState extends State<CreateIdeaScreen> {
       'commented_at': _timestamp,
     };
     List comments = ideaDescriptionText == '' ? [] : [firstComment];
+    */
     var _ideaData = {
       'id': ideaId,
       'title': _ideaTextFieldController.text,
+      'description': _ideaDescriptionController.text,
       'url': '',
       'image_url': '',
       'author_invitation_code': authorInvitationCode,
       'author_name': '',
       'created_on': _timestamp,
-      'comments': comments,
+      'comments': [],
       'ratings': [],
     };
     bool _success = await firestoreWrite('project_' + projectId.toString(), 'idea_' + ideaId.toString(), _ideaData); //TODO
@@ -90,23 +93,13 @@ class _CreateIdeaScreenState extends State<CreateIdeaScreen> {
                   ),
                 ),
                 SizedBox(height: 15),
-                Visibility(
-                  visible: !_descriptionTextFieldVisible,
-                  child: FlatButton(
-                    child: Text('add comment', style: TextStyle(color: Colors.black, fontSize: 18)),
-                    onPressed: _showDescriptionTextField,
-                  ),
-                ),
-                Visibility(
-                  visible: _descriptionTextFieldVisible,
-                  child: TextField(
-                    controller: _ideaDescriptionController,
-                    minLines: 3,
-                    maxLines: 5,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'comment',
-                    ),
+                TextField(
+                  controller: _ideaDescriptionController,
+                  minLines: 3,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'description (optional)',
                   ),
                 ),
                 SizedBox(height: 35),

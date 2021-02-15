@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fu_ideation/utils/globals.dart';
 import '../utils/ScreenArguments.dart';
 
 class IdeasLiveList extends StatelessWidget {
@@ -49,6 +50,7 @@ class IdeasLiveList extends StatelessWidget {
                   ),
                 ),
                 onPressed: (){
+                  selectedIdeaId = document.data()['id'];
                   Navigator.pushNamed(
                     context,
                     '/ideaOverviewScreen',

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 
 FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -23,6 +22,16 @@ Future<bool> firestoreWrite(String collectionName, String documentName, data) as
     return true;
   }).catchError((e) {
     print('ERROR sending to Firestore: ' + e.toString());
+    return false;
+  });
+}
+
+Future<bool> firestoreDeleteDocument(String collectionName, String documentName) async {
+  return await _firestore.collection(collectionName).doc(documentName).delete().then((value) {
+    print('successfully deleted Firestore document \'' + documentName + '\' in collection \'' + collectionName + '\'');
+    return true;
+  }).catchError((e) {
+    print('ERROR deleting a Firestore document: ' + e.toString());
     return false;
   });
 }
@@ -55,19 +64,4 @@ Future<Map> firestoreGetDoc(String collectionName, String documentName) async {
 Future<dynamic> firestoreGetFieldValue(String collectionName, String documentName, fieldKey) async {
   var doc = await firestoreGetDoc(collectionName, documentName);
   return doc == null ? null : doc[fieldKey];
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-Stream<dynamic> firestoreCollectionStream(String collectionName) {
-  return FirebaseFirestore.instance.collection(collectionName).snapshots as Stream<dynamic>;
-}
-
-listenToDocumentValue(String collection, String document, String documentValueKey) {
-  //TODO
-  _firestore.collection(collection).doc(document).snapshots().listen((result) {
-    String value = result.data()[documentValueKey].toString();
-    print("~~~~~~~~~~~~~~~~~~~> " + value);
-    return value;
-  });
 }

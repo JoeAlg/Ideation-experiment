@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fu_ideation/APIs/firestore.dart';
 import 'package:fu_ideation/APIs/sharedPreferences.dart';
 import 'package:fu_ideation/utils/ScreenArguments.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fu_ideation/utils/commentsFormatter.dart';
+import 'package:fu_ideation/utils/dateTimeFormatter.dart';
+import 'package:fu_ideation/utils/globals.dart';
 import 'package:fu_ideation/utils/ratingSystem.dart';
 
 class IdeaOverviewScreen extends StatefulWidget {
@@ -19,6 +22,8 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
   ScrollController _commentsScrollController = new ScrollController();
   double submittedRating;
   String ideaTitle;
+  Map documentMap;
+  bool _descriptionVisible = true;
 
   void navigateToParticipantProjectScreen() {
     Navigator.pushNamedAndRemoveUntil(
@@ -28,7 +33,15 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
     );
   }
 
+  void _deleteIdea(val) {
+    int projectId = sharedPreferencesGetValue('project_id');
+    print('id');
+    firestoreDeleteDocument('project_' + projectId.toString(), 'idea_' + selectedIdeaId.toString());
+    navigateToParticipantProjectScreen();
+  }
+
   Future<void> saveRating(int ideaId) async {
+    if (submittedRating == null) return;
     int projectId = sharedPreferencesGetValue('project_id');
     List ratings = await firestoreGetFieldValue('project_' + projectId.toString(), 'idea_' + ideaId.toString(), 'ratings');
     if (ratings == null) {
@@ -49,16 +62,12 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
       'rating': submittedRating,
       'rated_at': DateTime.now(),
     };
-    //ratings.add(submittedRating);
-    //firestoreWrite('project_' + projectId.toString(), 'idea_' + ideaId.toString(), {'ratings' : [ratingMap]});
-    print('ÄÄÄÄ:  ' + 'project_' + projectId.toString() + '   idea_' + ideaId.toString());
     firestoreAddToArray('project_' + projectId.toString(), 'idea_' + ideaId.toString(), 'ratings', [ratingMap]);
     Navigator.pop(context);
     setState(() {});
   }
 
   Future<void> sendComment(int projectId, int ideaId) async {
-    //FocusScope.of(context).unfocus();
 
     String currentUserInvitationCode = sharedPreferencesGetValue('invitation_code');
 
@@ -70,12 +79,29 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
     };
 
     firestoreAddToArray('project_' + projectId.toString(), 'idea_' + ideaId.toString(), 'comments', [commentMap]);
-    //newCommentController.text = '';
     newCommentController.clear();
+    _commentsScrollController.animateTo(
+      _commentsScrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.fastOutSlowIn,
+    );
+
     setState(() {});
   }
 
-  void rateIdea(int ideaId) {
+  void rateIdea() {
+    List ratingsList = documentMap['ratings'];
+    print('#####ratingsList: ' + ratingsList.toString());
+    double currentUserRating;
+    //String currentUserInvitationCode = userInfo['invitation_code'];
+    String currentUserInvitationCode = sharedPreferencesGetValue('invitation_code');
+    print('#####currentUserInvitationCode: ' + currentUserInvitationCode.toString());
+    for (Map e in ratingsList) {
+      if (e['author_invitation_code'] == currentUserInvitationCode) {
+        currentUserRating = e['rating'] * 1.0;
+      }
+    }
+    print('currentUserRating: ' + currentUserRating.toString());
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -97,10 +123,10 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
                   Padding(
                     padding: const EdgeInsets.all(0.0),
                     child: RatingBar.builder(
-                      initialRating: 3,
+                      initialRating: currentUserRating ?? 0,
                       minRating: 1,
                       direction: Axis.horizontal,
-                      allowHalfRating: true,
+                      allowHalfRating: false,
                       wrapAlignment: WrapAlignment.center,
                       itemCount: 5,
                       itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
@@ -116,7 +142,7 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
                   ),
                   SizedBox(height: 20),
                   RaisedButton(
-                    onPressed: () => saveRating(ideaId),
+                    onPressed: () => saveRating(documentMap['id']),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
@@ -143,13 +169,34 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            //Text('idea overview'),
             FlatButton(
-                onPressed: () => rateIdea(args.ideaId),
-                child: Text(
-                  'rate',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ))
+                onPressed: () => rateIdea(),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.star, color: Colors.white),
+                    Text(
+                      'rate',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ],
+                )),
+            PopupMenuButton(
+              onSelected: _deleteIdea,
+              itemBuilder: (context) {
+                var list = List<PopupMenuEntry<Object>>();
+                list.add(
+                  PopupMenuItem(
+                    child: Text(
+                      "delete",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    value: 2,
+                  ),
+                );
+                return list;
+              },
+            ),
           ],
         ),
       ),
@@ -160,83 +207,123 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
               .snapshots(),
           builder: (context, AsyncSnapshot<DocumentSnapshot> document) {
             if (document.connectionState == ConnectionState.active) {
-              var documentMap = document.data.data();
+              documentMap = document.data.data();
               if (documentMap == null) {
                 return Center(
                   child: Text('error loading data'),
                 );
               }
-              List documentList = documentMap.entries.map((entry) => entry.value).toList();
 
               return Column(
                 children: [
-                  Expanded(
-                    child: Container(
-                      color: Colors.grey[300],
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                documentMap['title'],
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 24),
-                              ),
+                  Card(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 18.0, bottom: 0),
+                            child: Text(
+                              documentMap['title'],
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 24),
                             ),
                           ),
-                          documentMap['ratings'].isEmpty
-                              ? Text('not rated')
-                              : FlatButton(
-                                  onPressed: () => rateIdea(args.ideaId),
-                                  child: RatingBarIndicator(
-                                    rating: getAverageRating2(documentMap['ratings']),
-                                    itemBuilder: (context, index) => Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
-                                    ),
-                                    itemCount: 5,
-                                    itemSize: 18.0,
-                                    direction: Axis.horizontal,
-                                  )),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    color: Colors.grey[100],
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        /*
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Row(children: [
-                            Icon(Icons.insert_comment_outlined),
-                            Text('14 ')
-                          ]),
                         ),
-                        */
+
+
                         Container(
-                          child: Text(
-                            documentMap['author_name'] + ', ' + '20.12.2020 13:53',
-                            style: TextStyle(),
+                          //color: Colors.grey[100],
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  documentMap['author_name'] + '\n' + dateTimeToAgoString(documentMap['created_on'].toDate()),
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                ),
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    documentMap['ratings'].isEmpty
+                                        ? FlatButton(
+                                      child: Text('not rated'),
+                                      onPressed: () => rateIdea(),
+                                    )
+                                        : Column(
+                                      children: [
+                                        FlatButton(
+                                          padding: const EdgeInsets.all(0.0),
+                                          onPressed: () => rateIdea(),
+                                          child: Column(
+                                            children: [
+                                              RatingBarIndicator(
+                                                rating: getAverageRating2(documentMap['ratings']),
+                                                itemBuilder: (context, index) => Icon(
+                                                  Icons.star,
+                                                  color: Colors.amber,
+                                                ),
+                                                itemCount: 5,
+                                                itemSize: 18.0,
+                                                direction: Axis.horizontal,
+                                              ),
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(Icons.person, size: 13, color: Colors.grey),
+                                                  SizedBox(width: 2),
+                                                  Text(
+                                                    '574',
+                                                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                                                  )
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text('your rating: ', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                                        Text('4', style: TextStyle(color: Colors.grey)),
+                                        Icon(
+                                          Icons.star,
+                                          color: Colors.grey,
+                                          size: 12,
+                                        ),
+                                      ],
+                                    ),
+
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: Container(
-                      color: Colors.grey[100],
+                  Visibility(
+                    visible: _descriptionVisible,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(documentMap['description'], textAlign: TextAlign.justify),
+                    ),
+                  ),
+                  Visibility(
+                    visible: !_descriptionVisible,
+                    child: Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         //child: CommentSection(),
                         //child: ListView(children: commentsSection(documentMap['comments'])),
                         child: ListView(
+
                           controller: _commentsScrollController,
                           children: [
                             RichText(
@@ -250,14 +337,14 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
                       ),
                     ),
                   ),
-                  Container(
-                    color: Colors.grey[100],
+                  Visibility(
+                    visible: !_descriptionVisible,
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(8.0),
                             child: TextField(
                               controller: newCommentController,
                               //keyboardType: TextInputType.number,
@@ -269,12 +356,9 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: FlatButton(
-                            child: Icon(Icons.send, size: 40, color: Colors.blue),
-                            onPressed: () => sendComment(sharedPreferencesGetValue('project_id'), args.ideaId),
-                          ),
+                        FlatButton(
+                          child: Icon(Icons.send, size: 32, color: Colors.blue),
+                          onPressed: () => sendComment(sharedPreferencesGetValue('project_id'), args.ideaId),
                         )
                       ],
                     ),

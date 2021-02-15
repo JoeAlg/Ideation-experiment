@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fu_ideation/APIs/firebaseAuth.dart';
 import 'package:fu_ideation/components/projectsCardsList.dart';
+import 'package:fu_ideation/utils/globals.dart';
 
 class AdminProjectsScreen extends StatefulWidget {
   AdminProjectsScreen({Key key, this.title}) : super(key: key);
@@ -12,6 +13,8 @@ class AdminProjectsScreen extends StatefulWidget {
 
 class _AdminProjectsScreenState extends State<AdminProjectsScreen> {
   void navigateToCreateProjectScreen() {
+    lastPhaseId = 0;
+    print('lastPhaseId0: ' + lastPhaseId.toString());
     Navigator.pushNamed(context, '/createProjectScreen');
   }
 

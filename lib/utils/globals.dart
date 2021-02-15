@@ -1,7 +1,7 @@
-library lubp.globals;
+library fu_ideation.globals;
 
 
-// globals['name']
+// userInfo['invitation_code']
 Map userInfo = {
   'app_launches' : null,
   'email' : null,
@@ -10,3 +10,10 @@ Map userInfo = {
   'name' : null,
   'status' : null,
 };
+
+Map projectInfo;
+
+String selectedIdeaId;
+String selectedPhasesDropDownValue;
+
+int lastPhaseId;
