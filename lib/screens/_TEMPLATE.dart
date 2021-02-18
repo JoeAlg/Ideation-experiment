@@ -15,7 +15,6 @@ class TemplatePage extends StatefulWidget {
 class _TemplatePageState extends State<TemplatePage> {
 
   void templateFunction() {
-    print('template_page');
     setState(() {
       //_counter++;
     });

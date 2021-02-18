@@ -13,12 +13,11 @@ class _ContentVisibilityDropdownState extends State<ContentVisibilityDropdown> {
         value: selectedPhasesDropDownValue,
         items: [
           DropdownMenuItem(value: 'visible', child: Text('visible')),
-          DropdownMenuItem(value: 'Pseudonymized', child: Text('Pseudonymized')),
+          DropdownMenuItem(value: 'pseudonymized', child: Text('pseudonymized')),
           DropdownMenuItem(value: 'anonymized', child: Text('anonymized')),
           DropdownMenuItem(value: 'hidden', child: Text('hidden')),
         ],
         onChanged: (value) {
-          print(value.toString());
           setState(() {
             selectedPhasesDropDownValue = value;
           });

@@ -13,8 +13,8 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController passwordController = new TextEditingController();
 
   Future<void> _logIn() async {
-    //await signInWithEmailAndPassword(emailController.text, passwordController.text); //TODO use this line after testing
-    await signInWithEmailAndPassword('info@zurab.me', '123456');
+    await signInWithEmailAndPassword(emailController.text, passwordController.text);
+    //await signInWithEmailAndPassword('info@zurab.me', '123456');
     if (getOfflineFirebaseUser()!=null){
       Navigator.pushNamedAndRemoveUntil(context, "/adminProjectsScreen", (r) => false);
     }

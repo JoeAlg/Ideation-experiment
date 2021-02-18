@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fu_ideation/utils/globals.dart';
 import 'package:fu_ideation/utils/globalsManager.dart';
+import 'package:fu_ideation/utils/localization.dart';
 import 'package:fu_ideation/utils/routes.dart';
 import 'APIs/firestore.dart';
+import 'APIs/localNotifications.dart';
 import 'APIs/sharedPreferences.dart';
 
 Future<void> main() async {
@@ -11,7 +13,10 @@ Future<void> main() async {
   initFirestore();
   await initSharedPreferences();
   await initProjectInfo();
-  print('projectInfoöö: ' + projectInfo.toString());
+  await initUserInfo();
+  await initLocalNotifications();
+  initUiLanguage();
+  //scheduleNotification('yo title', 'yoo body', DateTime.now().add(Duration(seconds: 10)), 0);
   initInitialRoute();
   runApp(MyApp());
 }
@@ -19,7 +24,6 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   final String initialRoute;
-
   MyApp({this.initialRoute});
 
   @override

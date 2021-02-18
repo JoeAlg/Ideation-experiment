@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fu_ideation/APIs/firestore.dart';
 import 'package:fu_ideation/APIs/sharedPreferences.dart';
+import 'package:fu_ideation/utils/globals.dart';
+import 'package:fu_ideation/utils/localization.dart';
 
 class CreateIdeaScreen extends StatefulWidget {
   CreateIdeaScreen({Key key, this.title}) : super(key: key);
@@ -49,7 +51,8 @@ class _CreateIdeaScreenState extends State<CreateIdeaScreen> {
       'url': '',
       'image_url': '',
       'author_invitation_code': authorInvitationCode,
-      'author_name': '',
+      'author_pseudonym': userInfo['pseudonym'],
+      'author_name': userInfo['name'],
       'created_on': _timestamp,
       'comments': [],
       'ratings': [],
@@ -83,33 +86,40 @@ class _CreateIdeaScreenState extends State<CreateIdeaScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                TextField(
-                  controller: _ideaTextFieldController,
-                  autofocus: true,
-                  maxLength: 70,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'idea',
+                Expanded(
+                  child: ListView(
+                    children: [
+                      TextField(
+                        controller: _ideaTextFieldController,
+                        autofocus: true,
+                        maxLength: 70,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: localStr('idea'),
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      TextField(
+                        controller: _ideaDescriptionController,
+                        minLines: 3,
+                        maxLines: 5,
+                        maxLength: 300,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'description (optional)',
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      RaisedButton(
+                        color: Colors.blue,
+                        child: Text(
+                          'save',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                        onPressed: _save,
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(height: 15),
-                TextField(
-                  controller: _ideaDescriptionController,
-                  minLines: 3,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'description (optional)',
-                  ),
-                ),
-                SizedBox(height: 35),
-                RaisedButton(
-                  color: Colors.blue,
-                  child: Text(
-                    'save',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  onPressed: _save,
                 ),
               ],
             ),

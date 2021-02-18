@@ -19,7 +19,6 @@ class _CustomNameSelectionCheckboxState extends State<CustomNameSelectionCheckbo
       title: Text("let participants edit their names"),
       value: customNameSelectionCheckboxValue ?? false,
       onChanged: (newValue) {
-        print('newValue: ' + newValue.toString());
         setState(() {
           customNameSelectionCheckboxValue = newValue;
         });

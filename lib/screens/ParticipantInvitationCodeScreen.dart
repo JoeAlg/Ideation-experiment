@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fu_ideation/APIs/firestore.dart';
+import 'package:fu_ideation/APIs/localNotifications.dart';
 import 'package:fu_ideation/APIs/sharedPreferences.dart';
 import 'package:fu_ideation/utils/ScreenArguments.dart';
 import 'package:fu_ideation/utils/globals.dart';
+import 'package:fu_ideation/utils/globalsManager.dart';
+import 'package:fu_ideation/utils/localization.dart';
 import 'package:fu_ideation/utils/onlineDatabase.dart';
 
 class InvitationCodeScreen extends StatefulWidget {
@@ -19,30 +23,33 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
     if (_code == null || _code == '') return;
     //check validity over Firebase:
     int projectId = await getProjectIdByInvitationCode(_code);
-
     if (projectId == null) {
-      print('projectId is null');
+      print ('projectId is null');
       return;
     }
 
     projectInfo = await getProjectInfoById(projectId.toString());
     if (projectInfo == null) {
-      print('projectInfo is null');
+      print ('projectInfo is null');
       return;
     }
-    print('projectInfo1: ' + projectInfo.toString());
 
-    userInfo = {
-      'app_launches': null,
-      'email': null,
-      'invitation_code': null,
-      'invitation_code_activated': null,
-      'name': null,
-      'status': null,
-    };
 
+    var data = {'participants' : {_code : {'invitation_code_activated': DateTime.now()}}};
+
+    firestoreWrite('_projects_data', 'project_' + projectId.toString(), data);
     sharedPreferencesSetInt('project_id', projectId);
     sharedPreferencesSetString('invitation_code', _code);
+
+    await initUserInfo();
+
+    List phases = projectInfo['phases'];
+    if (phases.length > 0){
+      phases.removeAt(0);
+    }
+    for (var e in phases){
+      scheduleNotification(localStr('new_phase_notif_title'), localStr('new_phase_notif_title'), e['start_date_time'].toDate(), e['phase_id']);
+    }
 
     _invitationCodeTextFieldController.text = '';
 
@@ -50,10 +57,7 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
       context,
       '/participantInfoScreen',
       (r) => false,
-      arguments: ParticipantInfoScreenArguments(
-        'Welcome',
-        'Welcome to the Experiment and thank you for the participation. You and other participants are expected to generate ideas for a name of a new bike repair shop, discuss and rate ideas from other participants and finally achieve a consensus on the best idea. Be creative and cooperative!',
-      ),
+      arguments: ParticipantInfoScreenArguments(localStr('welcome'), projectInfo['description'].toString()),
     );
   }
 
@@ -65,7 +69,7 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('invitation code'),
+        title: Text(localStr('invite_code')),
       ),
       body: SafeArea(
         child: Column(
@@ -78,7 +82,7 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: FlatButton(
                     child: Text(
-                      'are you an admin?',
+                      localStr('admin_login_btn'),
                       style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
                     ),
                     color: Colors.transparent,
@@ -99,8 +103,9 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
                   SizedBox(height: 40),
                   Center(
                     child: Text(
-                      'please enter your invitation code',
+                      localStr('enter_invite_code'),
                       style: TextStyle(fontSize: 24),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                   Padding(
@@ -109,7 +114,7 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
                       controller: _invitationCodeTextFieldController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                          hintText: 'invitation code...',
+                          hintText: localStr('invite_code'),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10.0)),
                           )),
@@ -119,7 +124,7 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: RaisedButton(
                       onPressed: _next,
-                      child: Text('next'),
+                      child: Text(localStr('next')),
                       color: Colors.blue,
                       textColor: Colors.white,
                     ),

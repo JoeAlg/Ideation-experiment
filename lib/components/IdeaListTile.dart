@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fu_ideation/APIs/sharedPreferences.dart';
 import 'package:fu_ideation/utils/dateTimeFormatter.dart';
 import 'package:fu_ideation/utils/globals.dart';
+import 'package:fu_ideation/utils/localization.dart';
+import 'package:fu_ideation/utils/phaseManager.dart';
 import 'package:fu_ideation/utils/ratingSystem.dart';
 import '../utils/ScreenArguments.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -15,12 +18,36 @@ class IdeaListTile extends StatefulWidget {
 }
 
 class _IdeaListTileState extends State<IdeaListTile> {
-  bool _selected;
+
+  String authorNameAndDate() {
+    String dateTimeStr = dateTimeToAgoString(widget.ideaMap['created_on'].toDate());
+    String currentUserInvitationCode = sharedPreferencesGetValue('invitation_code').toString();
+    if (currentUserInvitationCode == widget.ideaMap['author_invitation_code']) {
+      return localStr('me') + ', ' + dateTimeStr;
+    }
+    String contentVisibility = getCurrentPhaseContentVisibilityValue();
+    if (contentVisibility == null) {
+      return '?';
+    }
+
+    if (contentVisibility == 'visible') {
+      String authorName =  widget.ideaMap['author_name'];
+      if (authorName == null) return dateTimeStr;
+      return authorName + ', ' + dateTimeStr;
+    } else if (contentVisibility == 'pseudonymized') {
+      String authorPseudonym =  widget.ideaMap['author_pseudonym'];
+      if (authorPseudonym == null) return dateTimeStr;
+      return 'user' + widget.ideaMap['author_pseudonym'] + ', ' + dateTimeStr;
+    } else if (contentVisibility == 'anonymized') {
+      return 'anonymous' + ', ' + dateTimeStr;
+    } else {
+      return dateTimeStr;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return new ListTile(
-      selected: _selected ?? false,
       selectedTileColor: Colors.green,
       title: Card(
         child: FlatButton(
@@ -40,8 +67,8 @@ class _IdeaListTileState extends State<IdeaListTile> {
                     ),
                     widget.ideaMap['ratings'] == null || widget.ideaMap['ratings'].isEmpty
                         ? Text(
-                            'not rated',
-                            style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+                            localStr('not_rated'),
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
                           )
                         : RatingBarIndicator(
                             rating: getAverageRating2(widget.ideaMap['ratings']),
@@ -60,7 +87,7 @@ class _IdeaListTileState extends State<IdeaListTile> {
                   children: [
                     Flexible(
                       child: Text(
-                        widget.ideaMap['author_name'] + ', ' + dateTimeToAgoString(widget.ideaMap['created_on'].toDate()),
+                        authorNameAndDate(),
                         style: TextStyle(fontSize: 11, color: Colors.grey),
                       ),
                     ),
@@ -91,11 +118,6 @@ class _IdeaListTileState extends State<IdeaListTile> {
               arguments: IdeaOverviewScreenArguments(widget.ideaMap['id']),
             );
           },
-          /*onLongPress: () {
-            _selected = true;
-            setState(() {});
-          },
-          */
         ),
       ),
     );

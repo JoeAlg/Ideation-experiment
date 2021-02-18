@@ -14,7 +14,6 @@ class AdminProjectsScreen extends StatefulWidget {
 class _AdminProjectsScreenState extends State<AdminProjectsScreen> {
   void navigateToCreateProjectScreen() {
     lastPhaseId = 0;
-    print('lastPhaseId0: ' + lastPhaseId.toString());
     Navigator.pushNamed(context, '/createProjectScreen');
   }
 

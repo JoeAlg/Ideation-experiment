@@ -8,34 +8,26 @@ import 'onlineDatabase.dart';
 
 Future<bool> initUserInfo() async {
   try {
-    Map doc = await firestoreGetDoc('collectionName', 'documentName');
+    String projectId = sharedPreferencesGetValue('project_id').toString();
+    String inviteCode = sharedPreferencesGetValue('invitation_code');
+
+    Map doc = await firestoreGetDoc('_projects_data', 'project_' + projectId);
     if (doc == null) return false;
-    userInfo = {
-      'app_launches': null,
-      'email': null,
-      'invitation_code': null,
-      'invitation_code_activated': null,
-      'name': null,
-      'status': null,
-    };
+    userInfo = doc['participants'][inviteCode];
   } catch (e) {
+    print ('initUserInfo ERROR: ' + e.toString());
     return false;
   }
   return true;
 }
 
 Future<bool> initProjectInfo() async {
-  print('701');
   try {
     int projectId = sharedPreferencesGetValue('project_id');
     if (projectId == null) {
-      print('70');
       return null;
     }
-    print('703');
-    print('8881: ');
     projectInfo = await getProjectInfoById(projectId.toString());
-    log('8882: ' + projectInfo.toString());
     if (projectInfo == null) {
       return false;
     }

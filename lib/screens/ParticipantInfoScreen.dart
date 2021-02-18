@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fu_ideation/utils/ScreenArguments.dart';
+import 'package:fu_ideation/utils/localization.dart';
 
 class ParticipantInfoScreen extends StatefulWidget {
   ParticipantInfoScreen({Key key}) : super(key: key);
@@ -38,9 +39,10 @@ class _ParticipantInfoScreenState extends State<ParticipantInfoScreen> {
             Text(
               args.infoText,
               style: TextStyle(fontSize: 24),
+              textAlign: TextAlign.justify,
             ),
             SizedBox(height: 40),
-            RaisedButton(child: Text('go to experiment'), onPressed: navigateToParticipantProjectScreen, color: Colors.blue, textColor: Colors.white),
+            RaisedButton(child: Text(localStr('go_to_experiment')), onPressed: navigateToParticipantProjectScreen, color: Colors.blue, textColor: Colors.white),
             SizedBox(height: 40),
           ],
         ),

@@ -6,6 +6,8 @@ Future<void> initSharedPreferences() async => prefs = await SharedPreferences.ge
 
 sharedPreferencesGetValue(String _key) => prefs.get(_key);
 
+sharedPreferencesRemoveValue(String _key) => prefs.remove(_key);
+
 Future<void> sharedPreferencesSetInt(String _key, int _value) async => await prefs.setInt(_key, _value);
 
 Future<void> sharedPreferencesSetString(String _key, String _value) async => await prefs.setString(_key, _value);

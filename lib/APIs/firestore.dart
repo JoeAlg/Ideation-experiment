@@ -18,20 +18,20 @@ void initFirestore() {
 ///  bool _success = await firestoreWrite('collectionName', 'documentName', {fieldKey : fieldValue});
 Future<bool> firestoreWrite(String collectionName, String documentName, data) async {
   return await _firestore.collection(collectionName).doc(documentName).set(data, SetOptions(merge: true)).then((value) {
-    print('successfully sent to Firestore!');
+    print ('successfully sent to Firestore!');
     return true;
   }).catchError((e) {
-    print('ERROR sending to Firestore: ' + e.toString());
+    print ('ERROR sending to Firestore: ' + e.toString());
     return false;
   });
 }
 
 Future<bool> firestoreDeleteDocument(String collectionName, String documentName) async {
   return await _firestore.collection(collectionName).doc(documentName).delete().then((value) {
-    print('successfully deleted Firestore document \'' + documentName + '\' in collection \'' + collectionName + '\'');
+    print ('successfully deleted Firestore document \'' + documentName + '\' in collection \'' + collectionName + '\'');
     return true;
   }).catchError((e) {
-    print('ERROR deleting a Firestore document: ' + e.toString());
+    print ('ERROR deleting a Firestore document: ' + e.toString());
     return false;
   });
 }
@@ -39,10 +39,10 @@ Future<bool> firestoreDeleteDocument(String collectionName, String documentName)
 ///adds elements into an Firestore list
 Future<bool> firestoreAddToArray(String collectionName, String documentName, String arrayName, List elements) async {
   return await FirebaseFirestore.instance.collection(collectionName).doc(documentName).update({arrayName: FieldValue.arrayUnion(elements)}).then((value) {
-    print('successfully added elements to Firestore array!');
+    print ('successfully added elements to Firestore array!');
     return true;
   }).catchError((e) {
-    print('ERROR adding elements to Firestore: ' + e.toString());
+    print ('ERROR adding elements to Firestore: ' + e.toString());
     return false;
   });
 }
@@ -52,10 +52,10 @@ Future<bool> firestoreAddToArray(String collectionName, String documentName, Str
 ///  Map myDoc = await firestoreGetDoc('collectionName', 'documentName');
 Future<Map> firestoreGetDoc(String collectionName, String documentName) async {
   return await _firestore.collection(collectionName).doc(documentName).get().then((value) {
-    print('successfully got document <' + collectionName + '/' + documentName + '> from Firestore');
+    print ('successfully got document <' + collectionName + '/' + documentName + '> from Firestore');
     return value.data();
   }).catchError((e) {
-    print('ERROR getting document from Firestore: ' + e.toString());
+    print ('ERROR getting document from Firestore: ' + e.toString());
     return null;
   });
 }

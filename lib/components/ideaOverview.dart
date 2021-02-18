@@ -12,10 +12,6 @@ class IdeaOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // get the course document using a stream
-    print ('projectId: ' + projectId.toString());
-    print ('ideaId: ' + ideaId.toString());
-
     return StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('project_' + projectId.toString()).doc('idea_' + ideaId.toString()).snapshots(),
         builder: (context, AsyncSnapshot<DocumentSnapshot> document) {

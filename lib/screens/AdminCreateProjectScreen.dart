@@ -44,27 +44,28 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
     try {
       numParticipants = int.parse(numParticipantsController.text);
     } catch (e) {
-      print('error: ' + e.toString());
       return;
     }
 
     int projectId = await generateNewProjectIdOverFirestore();
     Map invitationCodes = await generateNewInvitationCodesOverFirestore(projectId, numParticipants);
     if (invitationCodes == null) {
-      print('generateNewInvitationCodesOverFirestore() ERROR');
       return;
     }
 
     Map participants = {};
+    int i = 1;
     invitationCodes.forEach((k, v) {
       participants[k] = {
         'invitation_code': k,
         'name': 'unknown',
+        'pseudonym' : i.toString(),
         'email': 'unknown',
         'app_launches': [],
         'status': 'code_not_activated',
         'invitation_code_activated': 'null',
       };
+      i++;
     });
 
 
@@ -87,7 +88,7 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
       Navigator.pushNamedAndRemoveUntil(context, "/adminProjectsScreen", (r) => false);
       progressIndicatorVisible = true;
     } else {
-      print('firestoreWrite() ERROR');
+      print ('firestoreWrite() ERROR');
       return;
     }
   }
@@ -103,7 +104,6 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
         });
       }
     }
-    print('selectedStartDateTime: ' + selectedStartDateTime.toString());
   }
 
   Future<void> _selectPhaseDate(BuildContext context, _dateTime) async {
@@ -121,9 +121,7 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
 
   void _savePhase() {
     Navigator.of(context, rootNavigator: true).pop();
-    print('lastPhaseId1: ' + lastPhaseId.toString());
     lastPhaseId += 1;
-    print('lastPhaseId2: ' + lastPhaseId.toString());
     Map _phaseMap = {
       'phase_id': lastPhaseId,
       'start_date_time': selectedPhaseStartDateTime,
@@ -140,7 +138,6 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          print('_phasesDropDownSelection: ' + _phasesDropDownSelection.toString());
           return Dialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)), //this right here
             child: Container(
@@ -298,7 +295,7 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
               ),
               TextField(
                 controller: titleController,
-                keyboardType: TextInputType.emailAddress,
+                //keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                     hintText: 'title...',
                     border: OutlineInputBorder(
@@ -315,7 +312,7 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
               ),
               TextField(
                 controller: descriptionController,
-                keyboardType: TextInputType.emailAddress,
+                //keyboardType: TextInputType.emailAddress,
                 minLines: 2,
                 maxLines: 3,
                 decoration: InputDecoration(
@@ -395,7 +392,6 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
                 title: Text("let participants edit their names"),
                 value: customNameSelectionCheckboxValue ?? false,
                 onChanged: (newValue) {
-                  print('newValue: ' + newValue.toString());
                   setState(() {
                     customNameSelectionCheckboxValue = newValue;
                   });

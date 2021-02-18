@@ -1,7 +1,10 @@
 import 'package:fu_ideation/APIs/firebaseAuth.dart';
+import 'package:fu_ideation/APIs/firestore.dart';
 import 'package:fu_ideation/APIs/sharedPreferences.dart';
 import 'package:fu_ideation/screens/AdminProjectOverviewScreen.dart';
 import 'package:fu_ideation/screens/AdminProjectsScreen.dart';
+import 'package:fu_ideation/screens/ConsentScreen.dart';
+import 'package:fu_ideation/screens/LanguageSelectionScreen.dart';
 import 'package:fu_ideation/screens/ParticipantCreateIdeaScreen.dart';
 import 'package:fu_ideation/screens/AdminCreateProjectScreen.dart';
 import 'package:fu_ideation/screens/ParticipantIdeaOverviewScreen.dart';
@@ -9,6 +12,8 @@ import 'package:fu_ideation/screens/ParticipantInvitationCodeScreen.dart';
 import 'package:fu_ideation/screens/AdminLoginScreen.dart';
 import 'package:fu_ideation/screens/ParticipantInfoScreen.dart';
 import 'package:fu_ideation/screens/ParticipantProjectScreen.dart';
+
+import 'onlineDatabase.dart';
 
 
 /*
@@ -30,6 +35,8 @@ var _appRoutes = {
   '/participantProjectScreen': (context) => ParticipantProjectScreen(),
   '/createIdeaScreen': (context) => CreateIdeaScreen(),
   '/ideaOverviewScreen': (context) => IdeaOverviewScreen(),
+  '/languageSelectionScreen': (context) => LanguageSelectionScreen(),
+  '/consentScreen': (context) => ConsentScreen(),
 };
 
 Map getAppRoutes() {
@@ -46,6 +53,21 @@ void initInitialRoute(){
   return;
     */
 
+  //sharedPreferencesRemoveValue('ui_language');
+
+
+  bool uiLanguageSet = sharedPreferencesGetValue('ui_language') != null;
+  if (!uiLanguageSet){
+    setInitialRoute('/languageSelectionScreen');
+    return;
+  }
+
+  bool consentGranted = sharedPreferencesGetValue('consent_granted') != null;
+  if (!consentGranted){
+    setInitialRoute('/consentScreen');
+    return;
+  }
+
   bool isLoggedAsAdmin = getOfflineFirebaseUser() != null; //TODO
   bool isLoggedAsParticipant = sharedPreferencesGetValue('invitation_code') != null;
   if (!isLoggedAsAdmin && !isLoggedAsParticipant){
@@ -53,6 +75,7 @@ void initInitialRoute(){
   } else if (isLoggedAsAdmin){
     setInitialRoute('/adminProjectsScreen');
   } else if (isLoggedAsParticipant){
+    logAppLaunch();
     setInitialRoute('/participantProjectScreen');
   }
 }
