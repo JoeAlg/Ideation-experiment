@@ -20,7 +20,7 @@ List<InlineSpan> commentsSection(List comments) {
     } else if (contentVisibility == 'anonymized'){
       authorText = 'anonymous';
     } else {
-      authorText = 'user';
+      authorText = localStr('user');
     }
     textSpans.add(TextSpan(text: '\n' + authorText + ': ', style: TextStyle(fontWeight: FontWeight.bold)));
     textSpans.add(TextSpan(text: e['comment']));

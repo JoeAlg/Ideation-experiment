@@ -7,8 +7,8 @@ class ParticipantInfoScreenArguments {
 
 class IdeaOverviewScreenArguments {
   final int ideaId;
-
-  IdeaOverviewScreenArguments(this.ideaId);
+  final String authorInvitationCode;
+  IdeaOverviewScreenArguments(this.ideaId, this.authorInvitationCode);
 }
 
 class ProjectOverviewScreenArguments {

@@ -37,7 +37,7 @@ class _IdeaListTileState extends State<IdeaListTile> {
     } else if (contentVisibility == 'pseudonymized') {
       String authorPseudonym =  widget.ideaMap['author_pseudonym'];
       if (authorPseudonym == null) return dateTimeStr;
-      return 'user' + widget.ideaMap['author_pseudonym'] + ', ' + dateTimeStr;
+      return localStr('user') + '-' + widget.ideaMap['author_pseudonym'] + ', ' + dateTimeStr;
     } else if (contentVisibility == 'anonymized') {
       return 'anonymous' + ', ' + dateTimeStr;
     } else {
@@ -115,7 +115,7 @@ class _IdeaListTileState extends State<IdeaListTile> {
             Navigator.pushNamed(
               context,
               '/ideaOverviewScreen',
-              arguments: IdeaOverviewScreenArguments(widget.ideaMap['id']),
+              arguments: IdeaOverviewScreenArguments(widget.ideaMap['id'], widget.ideaMap['author_invitation_code']),
             );
           },
         ),

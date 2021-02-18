@@ -42,13 +42,15 @@ class _InvitationCodeScreenState extends State<InvitationCodeScreen> {
     sharedPreferencesSetString('invitation_code', _code);
 
     await initUserInfo();
-
-    List phases = projectInfo['phases'];
+    await initProjectInfo();
+print ('ttttttttttttttttt' + projectInfo['phases'].toString());
+    List phases = new List.from(projectInfo['phases']);
+    //List phases = projectInfo['phases'];
     if (phases.length > 0){
       phases.removeAt(0);
     }
     for (var e in phases){
-      scheduleNotification(localStr('new_phase_notif_title'), localStr('new_phase_notif_title'), e['start_date_time'].toDate(), e['phase_id']);
+      scheduleNotification(localStr('new_phase_notif_title'), localStr('new_phase_notif_body'), e['start_date_time'].toDate(), e['phase_id']);
     }
 
     _invitationCodeTextFieldController.text = '';

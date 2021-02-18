@@ -12,3 +12,5 @@ String selectedPhasesDropDownValue;
 int lastPhaseId;
 
 String uiLanguageCode;
+
+String selectedDropDownValue = 'created_on';

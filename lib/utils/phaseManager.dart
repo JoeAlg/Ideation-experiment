@@ -1,17 +1,23 @@
+import 'dart:developer';
+
 import 'globals.dart';
 
 int getCurrentPhaseId(){
   if (projectInfo == null) return null;
   if (projectInfo['phases'] == null) return null;
   List projectPhases = projectInfo['phases'];
-  int currentPhaseId;
+ int currentPhaseId;
   DateTime _now = DateTime.now();
 
 
   for(final e in projectPhases){
+
+    //print('projectPhase: ID: ' + e['phase_id'].toString() + '  START: ' + e['start_date_time'].toDate().toString() + '  END: ' + e['end_date_time'].toDate().toString());
+
     DateTime _start = e['start_date_time'].toDate();
     DateTime _end = e['end_date_time'].toDate();
     if (_now.isAfter(_start) && _now.isBefore(_end)){
+      //print('ID: ' + e['phase_id'].toString());
       currentPhaseId = e['phase_id'];
     }
   }

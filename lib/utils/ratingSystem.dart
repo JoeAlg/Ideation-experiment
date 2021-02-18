@@ -35,3 +35,12 @@ double getAverageRating2(List ratingsMaps) {
   if (_avg > 5.0) return 5.0;
   return _sum / ratings.length;
 }
+
+int numUserUniqueRatings(ratingsMaps){
+  if (ratingsMaps == null || ratingsMaps.isEmpty) return null;
+  Map userUniqueRatings = {};
+  for(final e in ratingsMaps){
+    userUniqueRatings[e['author_invitation_code']] = e;
+  }
+  return userUniqueRatings.keys.length;
+}

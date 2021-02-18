@@ -10,6 +10,7 @@ import 'package:fu_ideation/utils/commentsFormatter.dart';
 import 'package:fu_ideation/utils/dateTimeFormatter.dart';
 import 'package:fu_ideation/utils/globals.dart';
 import 'package:fu_ideation/utils/localization.dart';
+import 'package:fu_ideation/utils/phaseManager.dart';
 import 'package:fu_ideation/utils/ratingSystem.dart';
 
 class IdeaOverviewScreen extends StatefulWidget {
@@ -34,10 +35,22 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
     );
   }
 
-  String authorAndDateStr(){
+  String authorAndDateStr() {
     String author = documentMap['author_name'];
+    String contentVisibility = getCurrentPhaseContentVisibilityValue();
+
+    if (contentVisibility == 'visible') {
+      author = documentMap['author_name'];
+    } else if (contentVisibility == 'pseudonymized') {
+      author = localStr('user') + '-' + documentMap['author_pseudonym'];
+    } else if (contentVisibility == 'anonymized') {
+      author = localStr('anonymous');
+    } else {
+      author = '';
+    }
+
     String ideaDate = dateTimeToAgoString(documentMap['created_on'].toDate());
-    if (author == null){
+    if (author == null) {
       return ideaDate;
     } else {
       return author + '\n' + ideaDate;
@@ -68,7 +81,7 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
     String currentUserInvitationCode = sharedPreferencesGetValue('invitation_code');
     Map ratingMap = {
       'author_invitation_code': currentUserInvitationCode,
-      'author_name': currentUserInvitationCode,
+      'author_name': userInfo['name'],
       'rating': submittedRating,
       'rated_at': DateTime.now(),
     };
@@ -78,7 +91,6 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
   }
 
   Future<void> sendComment(int projectId, int ideaId) async {
-
     String currentUserInvitationCode = sharedPreferencesGetValue('invitation_code');
 
     var commentMap = {
@@ -100,20 +112,22 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
     setState(() {});
   }
 
-  bool isCurrentUsersIdea(){
-    if (documentMap == null) return false;
-    String ideaAuthor = documentMap['author_invitation_code'];
-    if (ideaAuthor == null) return false;
+  bool isCurrentUsersIdea(String authorInviteCode) {
+    if (authorInviteCode == null) return false;
+    print('111 3');
     String currentUserInviteCode = sharedPreferencesGetValue('invitation_code');
     if (currentUserInviteCode == null) return false;
-    if (ideaAuthor.toString() == currentUserInviteCode.toString()){
+    print('111 4');
+    if (authorInviteCode.toString() == currentUserInviteCode.toString()) {
+      print('111 5');
       return true;
     } else {
+      print('111 6');
       return false;
     }
   }
 
-  double currentUserRating(){
+  double currentUserRating() {
     double currentUserRating;
     List ratingsList = documentMap['ratings'];
     //String currentUserInvitationCode = userInfo['invitation_code'];
@@ -206,7 +220,7 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
                   ],
                 )),
             Visibility(
-              visible: isCurrentUsersIdea(),
+              visible: isCurrentUsersIdea(args.authorInvitationCode),
               child: PopupMenuButton(
                 onSelected: _deleteIdea,
                 itemBuilder: (context) {
@@ -263,7 +277,6 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
                                   ),
                                 ),
                               ),
-
                               Visibility(
                                 visible: MediaQuery.of(context).viewInsets.bottom == 0,
                                 child: Center(
@@ -278,7 +291,6 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
                                   ),
                                 ),
                               ),
-
                               Container(
                                 //color: Colors.grey[100],
                                 child: Padding(
@@ -297,45 +309,51 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
                                         children: [
                                           documentMap['ratings'].isEmpty
                                               ? FlatButton(
-                                            child: Text(localStr('not_rated'), style: TextStyle(color: Colors.grey),),
-                                            onPressed: () => rateIdea(),
-                                          )
+                                                  child: Text(
+                                                    localStr('not_rated'),
+                                                    style: TextStyle(color: Colors.grey),
+                                                  ),
+                                                  onPressed: () => rateIdea(),
+                                                )
                                               : Column(
-                                            children: [
-                                              FlatButton(
-                                                padding: const EdgeInsets.all(0.0),
-                                                onPressed: () => rateIdea(),
-                                                child: Column(
                                                   children: [
-                                                    Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        Icon(Icons.person, size: 13, color: Colors.grey),
-                                                        SizedBox(width: 2),
-                                                        Text(
-                                                          documentMap['ratings'].length.toString(),
-                                                          style: TextStyle(color: Colors.grey, fontSize: 13),
-                                                        )
-                                                      ],
-                                                    ),
-                                                    RatingBarIndicator(
-                                                      rating: getAverageRating2(documentMap['ratings']),
-                                                      itemBuilder: (context, index) => Icon(
-                                                        Icons.star,
-                                                        color: Colors.amber,
+                                                    FlatButton(
+                                                      padding: const EdgeInsets.all(0.0),
+                                                      onPressed: () => rateIdea(),
+                                                      child: Column(
+                                                        children: [
+                                                          Row(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: [
+                                                              Icon(Icons.person, size: 13, color: Colors.grey),
+                                                              SizedBox(width: 1),
+                                                              Text(
+                                                                numUserUniqueRatings(documentMap['ratings']).toString(),
+                                                                //documentMap['ratings'].length.toString(),
+                                                                //_numUserUniqueRatings();
+                                                                style: TextStyle(color: Colors.grey, fontSize: 13),
+                                                              ),
+                                                              SizedBox(width: 6),
+                                                              RatingBarIndicator(
+                                                                rating: getAverageRating2(documentMap['ratings']),
+                                                                itemBuilder: (context, index) => Icon(
+                                                                  Icons.star,
+                                                                  color: Colors.amber,
+                                                                ),
+                                                                itemCount: 5,
+                                                                itemSize: 18.0,
+                                                                direction: Axis.horizontal,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
                                                       ),
-                                                      itemCount: 5,
-                                                      itemSize: 18.0,
-                                                      direction: Axis.horizontal,
                                                     ),
-
                                                   ],
                                                 ),
-                                              ),
-                                            ],
-                                          ),
                                           Visibility(
-                                            visible: !documentMap['ratings'].isEmpty,
+                                            //visible: !documentMap['ratings'].isEmpty,
+                                            visible: currentUserRating() != null,
                                             child: Row(
                                               children: [
                                                 Text(localStr('your_rating') + ': ', style: TextStyle(color: Colors.grey, fontSize: 12)),
@@ -348,7 +366,6 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
                                               ],
                                             ),
                                           ),
-
                                         ],
                                       ),
                                     ],
@@ -358,7 +375,6 @@ class _IdeaOverviewScreenState extends State<IdeaOverviewScreen> {
                             ],
                           ),
                         ),
-
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),

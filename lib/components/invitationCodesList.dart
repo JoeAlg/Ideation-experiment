@@ -54,7 +54,7 @@ class IdeasLiveList extends StatelessWidget {
                   Navigator.pushNamed(
                     context,
                     '/ideaOverviewScreen',
-                    arguments: IdeaOverviewScreenArguments(document.data()['id']),
+                    arguments: IdeaOverviewScreenArguments(document.data()['id'], document.data()['author_invitation_code']),
                   );
                 },
               ),

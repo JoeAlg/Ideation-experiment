@@ -51,7 +51,7 @@ var localized = {
     'en': 'not rated',
     'de': 'keine Bewertungen',
   },
-    'rate_this_idea': {
+  'rate_this_idea': {
     'en': 'rate this idea',
     'de': 'diese Idee bewerten',
   },
@@ -59,9 +59,41 @@ var localized = {
     'en': 'your rating',
     'de': 'Ihre Bewertung',
   },
+  'no_ideas': {
+    'en': 'press + to add new idea',
+    'de': 'drücke + um eine neue Idee hinzuzufügen',
+  },
+  'add_new_idea': {
+    'en': 'add new idea',
+    'de': 'neue Idee',
+  },
+  'description': {
+    'en': 'description',
+    'de': 'Beschreibung',
+  },
+  'optional': {
+    'en': 'optional',
+    'de': 'optional',
+  },
+  'save': {
+    'en': 'save',
+    'de': 'speichern',
+  },
   'date': {
     'en': 'date',
     'de': 'Datum',
+  },
+  'num_ratings': {
+    'en': 'number of ratings',
+    'de': 'Anz. Bewertungen',
+  },
+  'num_comments': {
+    'en': 'number of comments',
+    'de': 'Anz. Kommentare',
+  },
+  'avg_rating': {
+    'en': 'average rating',
+    'de': 'durchsch. Bewertung',
   },
   'author': {
     'en': 'author',
@@ -71,13 +103,17 @@ var localized = {
     'en': 'title',
     'de': 'Titel',
   },
+  'user': {
+    'en': 'user',
+    'de': 'Benutzer',
+  },
   'new_phase_notif_title': {
     'en': 'New Phase Started!',
     'de': 'Neue Phase gestartet!',
   },
   'new_phase_notif_body': {
     'en': 'Come back and see what\'s new',
-    'de': 'Komm zurück und schau was es Neues gibt!',
+    'de': 'Es gibt Neues zu entdecken!',
   },
   'consent_title': {
     'en': 'Declaration of Consent',
@@ -91,6 +127,10 @@ var localized = {
   'sort_by': {
     'en': 'sort by',
     'de': 'sortieren nach',
+  },
+  'anonymous': {
+    'en': 'anonymous',
+    'de': 'anonym',
   },
   'consent_body': {
     'en': '''1. Introduction
@@ -114,7 +154,7 @@ Im Kontext meiner Bachelorarbeit mit dem Titel “Design, Implementation and Eva
 2. Gesammelte Daten
 Daten, die für oben genannten Zwecken gesammelt werden, können folgendes enthalten:
 - Name(n), Alter, Beruf, und E-Mail Adresse der Teilnehmenden
-- Rückmeldung der Teilnehmenden, die während der Studien eingesammelt wird
+- Rückmeldung der Teilnehmenden, die während der Studien gesammelt wird
 - Daten, die durch Interaktion mit der Software erstellt werden
 
 3. Speicherung und Zugriff auf die Daten Gesammelte Daten werden sowohl lokal als auch in einem geteilten Overleaf Dokument gespeichert. Den Zugriff auf dieses Dokument werden, außer mir, Angehörige der Freien Universität Berlin haben, denen ich im Kontext dieser Bachelorarbeit Zugang gewährt habe oder diesen gewähren werde. Über Datenschutz-Bestimmungen von Overleaf können Sie mehr unter dem folgenden Link erfahren: https://www.overleaf.com/legal

@@ -4,6 +4,8 @@ import 'package:fu_ideation/APIs/sharedPreferences.dart';
 import 'package:fu_ideation/utils/globals.dart';
 import 'package:fu_ideation/utils/localization.dart';
 
+import 'ParticipantProjectScreen.dart';
+
 class CreateIdeaScreen extends StatefulWidget {
   CreateIdeaScreen({Key key, this.title}) : super(key: key);
   final String title;
@@ -63,8 +65,8 @@ class _CreateIdeaScreenState extends State<CreateIdeaScreen> {
       return;
     }
 
-    ideaId+=1;
-    _success = await firestoreWrite('_projects_data', 'project_' + projectId.toString(), {'idea_id_counter' : ideaId});
+    ideaId += 1;
+    _success = await firestoreWrite('_projects_data', 'project_' + projectId.toString(), {'idea_id_counter': ideaId});
     if (_success) {
       Navigator.pushNamedAndRemoveUntil(context, "/participantProjectScreen", (r) => false);
     } else {
@@ -77,7 +79,7 @@ class _CreateIdeaScreenState extends State<CreateIdeaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('add new idea'),
+        title: Text(localStr('add_new_idea')),
       ),
       body: SafeArea(
         child: Padding(
@@ -106,14 +108,14 @@ class _CreateIdeaScreenState extends State<CreateIdeaScreen> {
                         maxLength: 300,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: 'description (optional)',
+                          labelText: localStr('description') + ' (' + localStr('optional') + ')',
                         ),
                       ),
                       SizedBox(height: 5),
                       RaisedButton(
                         color: Colors.blue,
                         child: Text(
-                          'save',
+                          localStr('save'),
                           style: TextStyle(color: Colors.white, fontSize: 18),
                         ),
                         onPressed: _save,
